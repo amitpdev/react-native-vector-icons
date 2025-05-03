@@ -147,8 +147,21 @@ if (isNewArchitectureEnabled()) {
 
 android.sourceSets.main.assets.srcDirs += file("$buildDir/intermediates/RNVI")
 
+def getNodeExecutable() {
+  // Default to "node" if not defined in root project
+  def nodeExecutable = "node"
+  if (rootProject.hasProperty('nodeExecutableAndArgs') && rootProject.nodeExecutableAndArgs instanceof List && rootProject.nodeExecutableAndArgs.size() > 0) {
+    nodeExecutable = rootProject.nodeExecutableAndArgs[0]
+    println "Using Node executable from root project: ${nodeExecutable}"
+  } else {
+    println "Using default Node executable: ${nodeExecutable}"
+  }
+  return nodeExecutable
+}
+
 task copyFonts(type: Exec) {
-  commandLine 'node', '../lib/commonjs/scripts/getFonts.js', "${rootDir.parentFile.absolutePath}/package.json"
+  def nodeExe = getNodeExecutable()
+  commandLine nodeExe, '../lib/commonjs/scripts/getFonts.js', "${rootDir.parentFile.absolutePath}/package.json"
   def fonts = new ByteArrayOutputStream()
   standardOutput = fonts
 
